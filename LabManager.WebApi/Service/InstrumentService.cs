@@ -1,9 +1,10 @@
-﻿using LabManager.Models;
+﻿using LabManager.WebApi.Model;
+using LabManager.WebApi.Repository;
 using Microsoft.AspNetCore.Mvc.ModelBinding;
 
-namespace LabManager.WebApi.Services
+namespace LabManager.WebApi.Service
 {
-    public class InstrumentService
+    public class InstrumentService : IInstrumentService
     {
 
         private ModelStateDictionary _modelState;
@@ -26,59 +27,50 @@ namespace LabManager.WebApi.Services
             //    _modelState.AddModelError("UnitsInStock", "Units in stock cannot be less than zero.");
             return _modelState.IsValid;
         }
-        public IEnumerable<Instrument> ListProducts()
+        public async Task<IEnumerable<Instrument>> GetInstruments()
         {
-            return _repository.ListProducts();
+            return await _repository.GetInstruments();           
         }
-        public bool AddInstrument(Instrument instrumentToAdd)
+
+        public async Task<Instrument> GetInstrument(int id)
+        {
+            return await _repository.GetInstrument(id);
+        }
+        public Task<bool> AddInstrument(Instrument instrumentToAdd)
         {
             // Validation logic
             if (!ValidateInstrument(instrumentToAdd))
-                return false;
+                 return Task.FromResult(false); 
 
             // Database logic
             try
             {
-                _repository.AddInstrument(instrumentToAdd);
+              return  _repository.AddInstrument(instrumentToAdd);
             }
             catch
             {
-                return false;
+                return Task.FromResult(false);
             }
-            return true;
         }
-        public bool UpdateInstrument(Instrument instrumentToUpdate)
+        public Task<bool> UpdateInstrument(Instrument instrumentToUpdate)
         {
             // Validation logic
             if (!ValidateInstrument(instrumentToUpdate))
-                return false;
+                return Task.FromResult(false);
 
             // Database logic
             try
             {
-                _repository.AddInstrument(instrumentToUpdate);
+              return _repository.AddInstrument(instrumentToUpdate);
             }
             catch
             {
-                return false;
+                return Task.FromResult(false);
             }
-            return true;
-        }
-        public bool UpdateInstrument(int id)
-        {
-
-            // Database logic
-            try
-            {
-                _repository.DeleteInstrument(id);
-            }
-            catch
-            {
-                return false;
-            }
-            return true;
         }
 
+
+ 
     }
 
 }

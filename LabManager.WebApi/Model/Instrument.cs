@@ -1,4 +1,4 @@
-﻿namespace LabManager.Models
+﻿namespace LabManager.WebApi.Model
 {
     public class Instrument
     {

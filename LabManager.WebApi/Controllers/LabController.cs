@@ -1,4 +1,6 @@
-﻿using LabManager.Models;
+﻿
+using LabManager.WebApi.Model;
+using LabManager.WebApi.Service;
 using Microsoft.AspNetCore.Mvc;
 
 namespace LabManager.WebApi.Controllers
@@ -6,36 +8,30 @@ namespace LabManager.WebApi.Controllers
     [ApiController]
     public class LabController : ControllerBase
     {
-        [HttpGet("Instruments/{id}")]
-        public ActionResult<Instrument> Get(int id)
+        private readonly IInstrumentService _instrumentService;
+
+        public LabController(IInstrumentService instrumentService)
         {
-            var Instruments = new List<Instrument>() {
-             new Instrument() { Id = 2, Name = "MiSeq1", LabId =  Guid.NewGuid() },
-            new Instrument() { Id = 3, Name = "MiSeq2", LabId = Guid.NewGuid() },
-            new Instrument() { Id = 4, Name = "MiSeq3", LabId = Guid.NewGuid() }
-        };
-            var person = Instruments.SingleOrDefault(_=>_.Id==id);
+            _instrumentService = instrumentService;
+        }
+        [HttpGet("Instruments/{id}")]
+        public async Task<ActionResult<Instrument>> Get(int id)
+        {
+
+            var person = _instrumentService.GetInstrument(2);
             if (person == null)
             {
-                return NotFound();
+                return await Task.FromResult(NotFound());
             }
 
-            return person;
+            return await person;
         }
         [HttpGet("Instruments/")]
-        public ActionResult<List<Instrument>> GetAll()
+        public async Task<IEnumerable<Instrument>> GetAll()
         {
-            var Instruments = new List<Instrument>() {
-             new Instrument() { Id = 2, Name = "MiSeq1", LabId =  Guid.NewGuid() },
-            new Instrument() { Id = 3, Name = "MiSeq2", LabId = Guid.NewGuid() },
-            new Instrument() { Id = 4, Name = "MiSeq3", LabId = Guid.NewGuid() }
-        };
-            if (Instruments == null)
-            {
-                return NotFound();
-            }
+            var Instruments = _instrumentService.GetInstruments();
 
-            return Instruments;
+            return await Instruments;
         }
 
     }
