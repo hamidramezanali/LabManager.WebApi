@@ -2,6 +2,7 @@
 using LabManager.WebApi.Model;
 using LabManager.WebApi.Service;
 using Microsoft.AspNetCore.Mvc;
+using System.Diagnostics;
 
 namespace LabManager.WebApi.Controllers
 {
@@ -32,6 +33,41 @@ namespace LabManager.WebApi.Controllers
             var Instruments = _instrumentService.GetInstruments();
 
             return await Instruments;
+        }
+        [HttpGet("{name}")]
+        public async Task<IActionResult> Run(string name)
+        {
+            string outputText = string.Empty;
+            var standardError = string.Empty;
+
+            try
+            {
+                using (Process process = new Process())
+                {
+                    process.StartInfo = new ProcessStartInfo
+                    {
+                        FileName = "dotnet",
+                        Arguments = @$"run --project WaitingTest.csproj",
+                        WorkingDirectory = @"C:\Users\hamid\source\repos\WaitingTest\WaitingTest\",//the file must exist
+                        RedirectStandardOutput = true,
+                        RedirectStandardError = true,
+                        UseShellExecute = false,
+                        CreateNoWindow = false,
+                    };
+
+                    process.Start();
+                    outputText = process.StandardOutput.ReadToEnd();
+                    outputText = outputText.Replace(Environment.NewLine, string.Empty);
+                    standardError = process.StandardError.ReadToEnd();
+                    process.WaitForExit();
+                }
+            }
+            catch (Exception ex)
+            {
+
+            }
+            var stringjsonData = @"{'FirstName': 'Jignesh', 'LastName': 'Trivedi'}";
+            return Ok(stringjsonData + standardError);
         }
 
     }
